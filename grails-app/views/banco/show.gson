@@ -1,0 +1,7 @@
+import aplicacaofinanceirarestful.Banco
+
+model {
+	Banco banco
+}
+
+json tmpl.banco(banco)

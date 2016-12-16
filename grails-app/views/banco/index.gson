@@ -1,0 +1,7 @@
+import aplicacaofinanceirarestful.Banco
+
+model {
+	Iterable<Banco> bancoList
+}
+
+json tmpl.banco(bancoList ?: [])

@@ -1,0 +1,12 @@
+import aplicacaofinanceirarestful.Banco
+
+model {
+	Banco banco
+}
+
+json {
+    id banco.id
+    numero banco.numero
+    cnpj banco.cnpj
+    nome banco.nome
+}
