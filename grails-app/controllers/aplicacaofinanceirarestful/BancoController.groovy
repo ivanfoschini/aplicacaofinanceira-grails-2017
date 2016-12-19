@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 
 class BancoController {
 
-    static allowedMethods = [delete: "DELETE", list: "GET", save: "POST", show: "GET", update: "PUT"]
+    static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
     def bancoService
 
@@ -45,7 +45,7 @@ class BancoController {
     }
 
     def update() {
-        def banco = bancoService.findById(params.id as Long)
+        Banco banco = bancoService.findById(params.id as Long)
 
         if (!banco) {
             render status: HttpStatus.NOT_FOUND
