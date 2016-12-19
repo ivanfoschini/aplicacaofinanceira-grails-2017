@@ -1,0 +1,10 @@
+import aplicacaofinanceirarestful.Estado
+
+model {
+	Estado estado
+}
+
+json {
+    id estado.id
+    nome estado.nome
+}

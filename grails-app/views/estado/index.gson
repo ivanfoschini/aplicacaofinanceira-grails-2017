@@ -1,0 +1,8 @@
+import aplicacaofinanceirarestful.Estado
+
+model {
+	Iterable<Estado> estadoList
+}
+
+json tmpl.estado(estadoList ?: [])
+

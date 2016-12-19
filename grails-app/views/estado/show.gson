@@ -1,0 +1,7 @@
+import aplicacaofinanceirarestful.Estado
+
+model {
+	Estado estado
+}
+
+json tmpl.estado(estado)
