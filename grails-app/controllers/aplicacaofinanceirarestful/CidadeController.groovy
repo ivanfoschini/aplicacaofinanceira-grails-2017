@@ -65,6 +65,18 @@ class CidadeController {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null))
         }
 
+        JSONObject jsonObject = request.JSON
+
+        if (!estadoService.validateEstado(jsonObject)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+            return
+        }
+
+        if (!estadoService.verifyCidadeIsUnique(jsonObject)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.unique.for.Estado', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+            return
+        }
+
         JsonSlurper jsonSlurper = new JsonSlurper()
         cidade.properties = jsonSlurper.parseText(request.JSON.toString())
 
