@@ -8,12 +8,13 @@ class BancoController {
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
     def bancoService
+    def messageSource
 
     def delete() {
         Banco banco = bancoService.findById(params.id as Long)
 
         if (!banco) {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null))
         }
 
         banco.delete(flush: true)
@@ -40,7 +41,7 @@ class BancoController {
         if (banco) {
             respond banco
         } else {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null))
         }
     }
 
@@ -48,7 +49,7 @@ class BancoController {
         Banco banco = bancoService.findById(params.id as Long)
 
         if (!banco) {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null))
         }
 
         JsonSlurper jsonSlurper = new JsonSlurper()
