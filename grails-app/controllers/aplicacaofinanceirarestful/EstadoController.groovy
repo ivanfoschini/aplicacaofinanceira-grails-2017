@@ -17,6 +17,11 @@ class EstadoController {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
         }
 
+        if (!estadoService.verifyDeletion(estado)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Estado.has.cidades', null, null), status: HttpStatus.CONFLICT
+            return
+        }
+
         estado.delete(flush: true)
         render status: HttpStatus.NO_CONTENT
     }

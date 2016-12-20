@@ -37,4 +37,12 @@ class EstadoService {
 
         return true
     }
+
+    def verifyDeletion(Estado estado) {
+        if (!estado.cidades?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }
