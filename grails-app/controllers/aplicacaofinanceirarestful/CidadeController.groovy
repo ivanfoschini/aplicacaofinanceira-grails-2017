@@ -15,7 +15,7 @@ class CidadeController {
         Cidade cidade = cidadeService.findById(params.id as Long)
 
         if (!cidade) {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null))
         }
 
         cidade.delete(flush: true)
@@ -54,7 +54,7 @@ class CidadeController {
         if (cidade) {
             respond cidade
         } else {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null))
         }
     }
 
@@ -62,7 +62,7 @@ class CidadeController {
         Cidade cidade = cidadeService.findById(params.id as Long)
 
         if (!cidade) {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null))
         }
 
         JsonSlurper jsonSlurper = new JsonSlurper()
