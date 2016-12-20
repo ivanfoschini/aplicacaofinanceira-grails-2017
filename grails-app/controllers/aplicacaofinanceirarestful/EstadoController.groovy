@@ -8,12 +8,13 @@ class EstadoController {
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
     def estadoService
+    def messageSource
 
     def delete() {
         Estado estado = estadoService.findById(params.id as Long)
 
         if (!estado) {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
         }
 
         estado.delete(flush: true)
@@ -40,7 +41,7 @@ class EstadoController {
         if (estado) {
             respond estado
         } else {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
         }
     }
 
@@ -48,7 +49,7 @@ class EstadoController {
         Estado estado = estadoService.findById(params.id as Long)
 
         if (!estado) {
-            render status: HttpStatus.NOT_FOUND
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
         }
 
         JsonSlurper jsonSlurper = new JsonSlurper()
