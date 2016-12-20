@@ -1,0 +1,8 @@
+import aplicacaofinanceirarestful.Cidade
+
+model {
+	Iterable<Cidade> cidadeList
+}
+
+json tmpl.cidade(cidadeList ?: [])
+

@@ -1,0 +1,7 @@
+import aplicacaofinanceirarestful.Cidade
+
+model {
+	Cidade cidade
+}
+
+json tmpl.cidade(cidade)
