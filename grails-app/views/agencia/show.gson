@@ -1,0 +1,7 @@
+import aplicacaofinanceirarestful.Agencia
+
+model {
+	Agencia agencia
+}
+
+json tmpl.agencia(agencia)

@@ -6,10 +6,14 @@ class Cidade implements Serializable {
 
     Estado estado
 
+    static hasMany = [enderecos: Endereco]
+
     static constraints = {
         nome nullable: false
 
         estado nullable: false
+
+        enderecos nullable: true
     }
 
     static mapping = {

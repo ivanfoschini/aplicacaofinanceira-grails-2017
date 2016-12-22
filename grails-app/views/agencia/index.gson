@@ -1,0 +1,8 @@
+import aplicacaofinanceirarestful.Agencia
+
+model {
+	Iterable<Agencia> agenciaList
+}
+
+json tmpl.agencia(agenciaList ?: [])
+

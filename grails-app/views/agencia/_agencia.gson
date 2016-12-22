@@ -1,0 +1,21 @@
+import aplicacaofinanceirarestful.Agencia
+
+model {
+	Agencia agencia
+}
+
+json {
+    id agencia.id
+    numero agencia.numero
+    nome agencia.nome
+    bancoId agencia.banco.id
+    bancoNome agencia.banco.nome
+    enderecoId agencia.endereco.id
+    enderecoLogradouro agencia.endereco.logradouro
+    enderecoNumero agencia.endereco.numero
+    enderecoComplemento agencia.endereco.complemento
+    enderecoBairro agencia.endereco.bairro
+    enderecoCep agencia.endereco.cep
+    enderecoCidade agencia.endereco.cidade.nome
+    enderecoEstado agencia.endereco.cidade.estado.nome
+}
