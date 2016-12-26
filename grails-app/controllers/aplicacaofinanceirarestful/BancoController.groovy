@@ -17,6 +17,11 @@ class BancoController {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null))
         }
 
+        if (!bancoService.verifyDeletion(banco)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Banco.has.agencias', null, null), status: HttpStatus.CONFLICT
+            return
+        }
+
         banco.delete(flush: true)
         render status: HttpStatus.NO_CONTENT
     }

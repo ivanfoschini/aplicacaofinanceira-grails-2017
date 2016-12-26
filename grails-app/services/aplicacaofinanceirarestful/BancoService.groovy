@@ -25,4 +25,12 @@ class BancoService {
 
         return true
     }
+
+    def verifyDeletion(Banco banco) {
+        if (!banco.agencias?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }

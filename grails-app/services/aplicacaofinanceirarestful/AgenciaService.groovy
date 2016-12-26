@@ -37,9 +37,11 @@ class AgenciaService {
             def allErrors = errorsObject.allErrors
 
             allErrors.each { ObjectError error ->
-                JSONObject errorJSONObject = new JSONObject()
-                errorJSONObject.put('message', messageSource.getMessage(error, null))
-                errorsJSONArray.put(errorJSONObject)
+                if (!error.field.toString().startsWith('agencia')) {
+                    JSONObject errorJSONObject = new JSONObject()
+                    errorJSONObject.put('message', messageSource.getMessage(error, null))
+                    errorsJSONArray.put(errorJSONObject)
+                }
             }
         }
 
