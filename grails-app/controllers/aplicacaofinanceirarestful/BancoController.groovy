@@ -29,10 +29,8 @@ class BancoController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         Banco banco = new Banco(jsonSlurper.parseText(request.JSON.toString()))
 
-        banco.validate()
-
         banco.save(flush: true)
-        respond banco, [status: HttpStatus.CREATED, view:'show']
+        respond banco, [status: HttpStatus.CREATED, view: 'show']
     }
 
     def show() {
@@ -55,9 +53,7 @@ class BancoController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         banco.properties = jsonSlurper.parseText(request.JSON.toString())
 
-        banco.validate()
-
         banco.save(flush: true)
-        respond banco, [status: HttpStatus.OK, view:'show']
+        respond banco, [status: HttpStatus.OK, view: 'show']
     }
 }
