@@ -42,10 +42,8 @@ class CidadeController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         Cidade cidade = new Cidade(jsonSlurper.parseText(jsonObject.toString()))
 
-        cidade.validate()
-
         cidade.save(flush: true)
-        respond cidade, [status: HttpStatus.CREATED, view:'show']
+        respond cidade, [status: HttpStatus.CREATED, view: 'show']
     }
 
     def show() {
@@ -80,9 +78,7 @@ class CidadeController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         cidade.properties = jsonSlurper.parseText(request.JSON.toString())
 
-        cidade.validate()
-
         cidade.save(flush: true)
-        respond cidade, [status: HttpStatus.OK, view:'show']
+        respond cidade, [status: HttpStatus.OK, view: 'show']
     }
 }

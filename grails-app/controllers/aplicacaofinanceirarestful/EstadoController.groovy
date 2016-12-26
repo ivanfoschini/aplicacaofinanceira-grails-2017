@@ -34,10 +34,8 @@ class EstadoController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         Estado estado = new Estado(jsonSlurper.parseText(request.JSON.toString()))
 
-        estado.validate()
-
         estado.save(flush: true)
-        respond estado, [status: HttpStatus.CREATED, view:'show']
+        respond estado, [status: HttpStatus.CREATED, view: 'show']
     }
 
     def show() {
@@ -60,9 +58,7 @@ class EstadoController {
         JsonSlurper jsonSlurper = new JsonSlurper()
         estado.properties = jsonSlurper.parseText(request.JSON.toString())
 
-        estado.validate()
-
         estado.save(flush: true)
-        respond estado, [status: HttpStatus.OK, view:'show']
+        respond estado, [status: HttpStatus.OK, view: 'show']
     }
 }
