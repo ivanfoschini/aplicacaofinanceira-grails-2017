@@ -19,6 +19,7 @@ class AgenciaController {
 
         if (!agencia) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
+            return
         }
 
         agencia.endereco.delete()
@@ -71,10 +72,11 @@ class AgenciaController {
     }
 
     def update() {
-        Agencia agencia = Agencia.get(params.id)
+        Agencia agencia = agenciaService.findById(params.id as Long)
 
         if (!agencia) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
+            return
         }
 
         JSONObject jsonObject = request.JSON
