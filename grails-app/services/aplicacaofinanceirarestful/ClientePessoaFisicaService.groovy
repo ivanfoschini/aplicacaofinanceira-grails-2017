@@ -42,6 +42,32 @@ class ClientePessoaFisicaService {
         return clientePessoaFisicaMap
     }
 
+    def createClientePessoaFisicaCompactResponse(List<ClientePessoaFisica> clientesPessoasFisicas) {
+        def clientesPessoasFisicasList = []
+
+        clientesPessoasFisicas.each { ClientePessoaFisica clientePessoaFisica ->
+            def clientePessoaFisicaMap = [
+                id: clientePessoaFisica.id,
+                nome: clientePessoaFisica.nome,
+                status: clientePessoaFisica.status,
+                rg: clientePessoaFisica.rg,
+                cpf: clientePessoaFisica.cpf
+            ]
+
+            clientesPessoasFisicasList.add(clientePessoaFisicaMap)
+        }
+
+        return clientesPessoasFisicasList
+    }
+
+    def findAllOrderByNome() {
+        return ClientePessoaFisica.findAll("from ClientePessoaFisica as clientePessoaFisica order by clientePessoaFisica.nome")
+    }
+
+    def findById(Long id) {
+        return ClientePessoaFisica.get(id)
+    }
+
     def validate(clientePessoaFisica, messageSource, request, response) {
         JSONArray errorsJSONArray = new JSONArray()
 

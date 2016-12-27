@@ -15,29 +15,25 @@ class ClientePessoaFisicaController {
     EnderecoService enderecoService
     MessageSource messageSource
 
-//    def delete() {
-//        ClientePessoaFisica clientePessoaFisica = ClientePessoaFisica.get(params.id)
-//
-//        if (!clientePessoaFisica) {
-//            respondNotFound()
-//            return
-//        }
-//
-//        clientePessoaFisica.enderecos.each { endereco ->
-//            endereco.delete()
-//        }
-//
-//        clientePessoaFisica.delete(flush: true)
-//        respondDeleted()
-//    }
-//
-//    def index() {
-//        def pessoasFisicas = ClientePessoaFisica.findAll("from ClientePessoaFisica as cli order by cli.nome")
-//
-//        JSON.use('compactClientePessoaFisica')
-//
-//        render pessoasFisicas as JSON
-//    }
+    def delete() {
+        ClientePessoaFisica clientePessoaFisica = clientePessoaFisicaService.findById(params.id as Long)
+
+        if (!clientePessoaFisica) {
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
+        }
+
+        clientePessoaFisica.enderecos.each { endereco ->
+            endereco.delete()
+        }
+
+        clientePessoaFisica.delete(flush: true)
+        render status: HttpStatus.NO_CONTENT
+    }
+
+    def index() {
+        List<ClientePessoaFisica> clientesPessoasFisicas = clientePessoaFisicaService.findAllOrderByNome()
+        respond clientePessoaFisicaService.createClientePessoaFisicaCompactResponse(clientesPessoasFisicas)
+    }
 
     def save() {
         JSONObject jsonObject = request.JSON
@@ -69,16 +65,16 @@ class ClientePessoaFisicaController {
         }
     }
 
-//    def show() {
-//        ClientePessoaFisica clientePessoaFisica = ClientePessoaFisica.get(params.id)
-//
-//        if (clientePessoaFisica) {
-//            respondFound(clientePessoaFisica)
-//        } else {
-//            respondNotFound()
-//        }
-//    }
-//
+    def show() {
+        ClientePessoaFisica clientePessoaFisica = clientePessoaFisicaService.findById(params.id as Long)
+
+        if (clientePessoaFisica) {
+            respond clientePessoaFisicaService.createClientePessoaFisicaComEnderecoResponse(clientePessoaFisica)
+        } else {
+            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
+        }
+    }
+
 //    def update() {
 //        if (!JSONUtil.instance.requestIsJson(request)) {
 //            JSONUtil.instance.respondNotAcceptable(response)
