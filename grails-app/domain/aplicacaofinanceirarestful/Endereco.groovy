@@ -9,6 +9,7 @@ class Endereco implements Serializable {
     String cep
 
     Cidade cidade
+    Cliente cliente
 
     static hasOne = [agencia: Agencia]
 
@@ -20,6 +21,7 @@ class Endereco implements Serializable {
         cep nullable: false, minSize: 9, maxSize: 9, validator: { if (!it.matches("\\d{5}-\\d{3}")) return ['invalid'] }
 
         cidade nullable: false
+        cliente nullable: true
 
         agencia nullable: true
     }
@@ -28,5 +30,6 @@ class Endereco implements Serializable {
         id generator: 'sequence', params: [sequence_name: 'endereco_seq']
 
         cidade column: "cidade_id"
+        cliente column: "cliente_id"
     }
 }

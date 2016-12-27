@@ -1,6 +1,7 @@
 package aplicacaofinanceirarestful
 
 import grails.transaction.Transactional
+import org.grails.web.json.JSONArray
 import org.grails.web.json.JSONObject
 
 @Transactional
@@ -14,7 +15,7 @@ class CidadeService {
         return Cidade.get(id)
     }
 
-    def validateCidade(jsonObject) {
+    def validateCidadeForAgencia(jsonObject) {
         JSONObject jsonCidadeObject = jsonObject.get("endereco").get("cidade")
 
         Cidade cidade = Cidade.get(jsonCidadeObject.get("id"))
@@ -24,5 +25,23 @@ class CidadeService {
         }
 
         return true
+    }
+
+    def validateCidadeForCliente(jsonObject) {
+        def isValid = true
+
+        JSONArray jsonEnderecosArray = jsonObject.get("enderecos")
+
+        jsonEnderecosArray.each { jsonEnderecoObject ->
+            JSONObject jsonCidadeObject = jsonEnderecoObject.get("cidade")
+
+            Cidade cidade = Cidade.get(jsonCidadeObject.get("id"))
+
+            if (!cidade) {
+                isValid = false
+            }
+        }
+
+        return isValid
     }
 }
