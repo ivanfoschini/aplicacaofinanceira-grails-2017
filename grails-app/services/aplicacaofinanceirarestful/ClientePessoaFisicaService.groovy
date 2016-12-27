@@ -10,7 +10,7 @@ import org.springframework.validation.ObjectError
 @Transactional
 class ClientePessoaFisicaService {
 
-    def createClientePessoaFisicaComEnderecoResponse(ClientePessoaFisica clientePessoaFisica) {
+    def clientePessoaFisicaComEnderecoResponse(ClientePessoaFisica clientePessoaFisica) {
         def enderecosList = []
 
         clientePessoaFisica.enderecos.each { endereco ->
@@ -42,7 +42,7 @@ class ClientePessoaFisicaService {
         return clientePessoaFisicaMap
     }
 
-    def createClientePessoaFisicaCompactResponse(List<ClientePessoaFisica> clientesPessoasFisicas) {
+    def clientePessoaFisicaCompactResponse(List<ClientePessoaFisica> clientesPessoasFisicas) {
         def clientesPessoasFisicasList = []
 
         clientesPessoasFisicas.each { ClientePessoaFisica clientePessoaFisica ->
