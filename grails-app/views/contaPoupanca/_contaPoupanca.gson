@@ -1,0 +1,16 @@
+import aplicacaofinanceirarestful.ContaPoupanca
+
+model {
+	ContaPoupanca contaPoupanca
+}
+
+json {
+     id contaPoupanca.id
+     numero contaPoupanca.numero
+     dataDeAbertura DateUtil.instance.dateToString(contaPoupanca.dataDeAbertura)
+     saldo contaPoupanca.saldo
+     dataDeAniversario DateUtil.instance.dateToString(contaPoupanca.dataDeAniversario)
+     correcaoMonetaria contaPoupanca.correcaoMonetaria
+     juros contaPoupanca.juros
+     agencia contaPoupanca.agencia.nome
+}

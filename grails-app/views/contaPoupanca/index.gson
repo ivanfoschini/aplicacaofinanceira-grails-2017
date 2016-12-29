@@ -1,0 +1,8 @@
+import aplicacaofinanceirarestful.ContaPoupanca
+
+model {
+	Iterable<ContaPoupanca> contaPoupancaList
+}
+
+json tmpl.contaPoupanca(contaPoupancaList ?: [])
+

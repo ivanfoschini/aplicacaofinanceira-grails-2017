@@ -18,6 +18,7 @@ class ContaCorrenteController {
 
         if (!contaCorrente) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaCorrente.not.found', null, null))
+            return
         }
 
         contaCorrente.delete(flush: true)
@@ -31,7 +32,7 @@ class ContaCorrenteController {
     def save() {
         JSONObject jsonObject = request.JSON
 
-        if (!DateUtil.instance.validateDataDeAbertura(jsonObject)) {
+        if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAbertura')) {
             render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaCorrente.dataDeAbertura.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
             return
         }
@@ -68,7 +69,7 @@ class ContaCorrenteController {
 
         JSONObject jsonObject = request.JSON
 
-        if (!DateUtil.instance.validateDataDeAbertura(jsonObject)) {
+        if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAbertura')) {
             render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaCorrente.dataDeAbertura.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
             return
         }

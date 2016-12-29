@@ -73,4 +73,12 @@ class AgenciaService {
 
         return true
     }
+
+    def verifyDeletion(Agencia agencia) {
+        if (!agencia.contas?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }

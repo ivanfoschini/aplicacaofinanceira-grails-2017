@@ -26,12 +26,12 @@ class DateUtil {
         }
     }
 
-    def validateDataDeAbertura(jsonObject) {
-        String dataDeAberturaString = jsonObject.get("dataDeAbertura")
+    def validateDateFromJSON(jsonObject, key) {
+        String dateString = jsonObject.get(key)
 
-        Date dataDeAbertura = stringToDate(dataDeAberturaString)
+        Date date = stringToDate(dateString)
 
-        if (!dataDeAbertura) {
+        if (!date) {
             return false
         }
 
