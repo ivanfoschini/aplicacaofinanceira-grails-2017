@@ -59,7 +59,9 @@ grails:
         defaultScope: singleton
     converters:
         encoding: UTF-8
-
+    databinding:
+            dateFormats:
+                - 'yyyy-MM-dd'
 ---
 hibernate:
     cache:

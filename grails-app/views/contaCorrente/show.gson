@@ -1,0 +1,7 @@
+import aplicacaofinanceirarestful.ContaCorrente
+
+model {
+	ContaCorrente contaCorrente
+}
+
+json tmpl.contaCorrente(contaCorrente)

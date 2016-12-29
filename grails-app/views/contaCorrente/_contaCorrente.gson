@@ -1,0 +1,14 @@
+import aplicacaofinanceirarestful.ContaCorrente
+
+model {
+	ContaCorrente contaCorrente
+}
+
+json {
+     id contaCorrente.id
+     numero contaCorrente.numero
+     dataDeAbertura DateUtil.instance.dateToString(contaCorrente.dataDeAbertura)
+     saldo contaCorrente.saldo
+     limite contaCorrente.limite
+     agencia contaCorrente.agencia.nome
+ }

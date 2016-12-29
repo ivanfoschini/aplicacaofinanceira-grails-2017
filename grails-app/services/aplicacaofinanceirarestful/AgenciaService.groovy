@@ -61,4 +61,16 @@ class AgenciaService {
 
         return responseBody
     }
+
+    def validateAgencia(jsonObject) {
+        JSONObject jsonAgenciaObject = jsonObject.get("agencia")
+
+        Agencia agencia = Agencia.get(jsonAgenciaObject.get("id"))
+
+        if (!agencia) {
+            return false
+        }
+
+        return true
+    }
 }
