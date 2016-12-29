@@ -8,12 +8,16 @@ class Conta implements Serializable {
 
     static hasOne = [agencia: Agencia]
 
+    static hasMany = [correntistas: Correntista]
+
     static constraints = {
         numero nullable: false, min: 1L, unique: true
         dataDeAbertura nullable: false
         saldo nullable: false
 
         agencia nullable: false
+
+        correntistas nullable: true
     }
 
     static mapping = {

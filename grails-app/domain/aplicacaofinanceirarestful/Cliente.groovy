@@ -5,12 +5,14 @@ class Cliente implements Serializable {
     String nome
     String status
 
-    static hasMany = [enderecos: Endereco]
+    static hasMany = [correntistas: Correntista,
+                      enderecos: Endereco]
 
     static constraints = {
         nome nullable: false
         status nullable: false, inList: ["ativo", "inativo"]
 
+        correntistas nullable: true
         enderecos nullable: false
     }
 

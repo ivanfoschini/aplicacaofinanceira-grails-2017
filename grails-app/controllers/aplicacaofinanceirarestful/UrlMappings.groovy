@@ -13,5 +13,9 @@ class UrlMappings {
         "/"(controller: 'application', action:'index')
         "500"(view: '/error')
         "404"(view: '/notFound')
+
+        "/correntista/associate"(controller: 'correntista', action: 'associate')
+        "/correntista/showByCliente/$id"(controller: 'correntista', action: 'showByCliente')
+        "/correntista/showByConta/$id"(controller: 'correntista', action: 'showByConta')
     }
 }
