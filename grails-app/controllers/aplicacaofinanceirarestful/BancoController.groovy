@@ -1,14 +1,15 @@
 package aplicacaofinanceirarestful
 
 import groovy.json.JsonSlurper
+import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 
 class BancoController {
 
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
-    def bancoService
-    def messageSource
+    BancoService bancoService
+    MessageSource messageSource
 
     def delete() {
         Banco banco = bancoService.findById(params.id as Long)
