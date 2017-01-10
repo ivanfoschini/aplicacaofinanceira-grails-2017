@@ -1,20 +1,22 @@
 package aplicacaofinanceirarestful
 
 import groovy.json.JsonSlurper
+import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 
 class EstadoController {
 
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
-    def estadoService
-    def messageSource
+    EstadoService estadoService
+    MessageSource messageSource
 
     def delete() {
         Estado estado = estadoService.findById(params.id as Long)
 
         if (!estado) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
+            return
         }
 
         estado.delete(flush: true)
@@ -48,6 +50,7 @@ class EstadoController {
 
         if (!estado) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
+            return
         }
 
         JsonSlurper jsonSlurper = new JsonSlurper()
