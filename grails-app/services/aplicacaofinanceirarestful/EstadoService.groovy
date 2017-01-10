@@ -38,6 +38,18 @@ class EstadoService {
         return true
     }
 
+    def verifyCidadeIsUnique(JSONObject jsonObject, Long id) {
+        Estado estado = Estado.get(jsonObject.get("estado").get("id"))
+
+        def queryResult = Cidade.executeQuery("from Cidade as cidade join cidade.estado as estado where cidade.nome = '" + jsonObject.get("nome") + "' and estado.id = " + estado.id + " and cidade.id <> " + id)
+
+        if (!queryResult.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
+
     def verifyDeletion(Estado estado) {
         if (!estado.cidades?.isEmpty()) {
             return false
