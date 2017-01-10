@@ -17,5 +17,9 @@ class UrlMappings {
         "/correntista/associate"(controller: 'correntista', action: 'associate')
         "/correntista/showByCliente/$id"(controller: 'correntista', action: 'showByCliente')
         "/correntista/showByConta/$id"(controller: 'correntista', action: 'showByConta')
+
+        "/login/login"(controller: 'login', action: 'login')
+
+        "/logout/logout"(controller: 'logout', action: 'logout')
     }
 }
