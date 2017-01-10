@@ -2,20 +2,22 @@ package aplicacaofinanceirarestful
 
 import groovy.json.JsonSlurper
 import org.grails.web.json.JSONObject
+import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 
 class CidadeController {
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
-    def cidadeService
-    def estadoService
-    def messageSource
+    CidadeService cidadeService
+    EstadoService estadoService
+    MessageSource messageSource
 
     def delete() {
         Cidade cidade = cidadeService.findById(params.id as Long)
 
         if (!cidade) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null))
+            return
         }
 
         cidade.delete(flush: true)
@@ -61,6 +63,7 @@ class CidadeController {
 
         if (!cidade) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null))
+            return
         }
 
         JSONObject jsonObject = request.JSON
@@ -70,7 +73,7 @@ class CidadeController {
             return
         }
 
-        if (!estadoService.verifyCidadeIsUnique(jsonObject)) {
+        if (!estadoService.verifyCidadeIsUnique(jsonObject, cidade.id)) {
             render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.unique.for.Estado', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
             return
         }
