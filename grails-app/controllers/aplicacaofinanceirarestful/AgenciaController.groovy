@@ -3,16 +3,17 @@ package aplicacaofinanceirarestful
 import grails.converters.JSON
 import groovy.json.JsonSlurper
 import org.grails.web.json.JSONObject
+import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 
 class AgenciaController {
 
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
-    def agenciaService
-    def bancoService
-    def cidadeService
-    def messageSource
+    AgenciaService agenciaService
+    BancoService bancoService
+    CidadeService cidadeService
+    MessageSource messageSource
 
     def delete() {
         Agencia agencia = agenciaService.findById(params.id as Long)
