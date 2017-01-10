@@ -16,6 +16,7 @@ class BancoController {
 
         if (!banco) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null))
+            return
         }
 
         banco.delete(flush: true)
@@ -49,6 +50,7 @@ class BancoController {
 
         if (!banco) {
             render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null))
+            return
         }
 
         JsonSlurper jsonSlurper = new JsonSlurper()
