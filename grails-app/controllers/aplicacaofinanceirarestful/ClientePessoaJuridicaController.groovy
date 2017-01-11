@@ -10,107 +10,138 @@ class ClientePessoaJuridicaController {
 
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
+    AutorizacaoService autorizacaoService
     CidadeService cidadeService
     ClientePessoaJuridicaService clientePessoaJuridicaService
     EnderecoService enderecoService
     MessageSource messageSource
 
     def delete() {
-        ClientePessoaJuridica clientePessoaJuridica = clientePessoaJuridicaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!clientePessoaJuridica) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            ClientePessoaJuridica clientePessoaJuridica = clientePessoaJuridicaService.findById(params.id as Long)
 
-        clientePessoaJuridica.enderecos.each { endereco ->
-            endereco.delete()
-        }
+            if (!clientePessoaJuridica) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.not.found', null, null))
+                return
+            }
 
-        clientePessoaJuridica.delete(flush: true)
-        render status: HttpStatus.NO_CONTENT
+            clientePessoaJuridica.enderecos.each { endereco ->
+                endereco.delete()
+            }
+
+            clientePessoaJuridica.delete(flush: true)
+            render status: HttpStatus.NO_CONTENT
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }     
     }
 
     def index() {
-        List<ClientePessoaJuridica> clientesPessoasJuridicas = clientePessoaJuridicaService.findAllOrderByNome()
-        respond clientePessoaJuridicaService.clientePessoaJuridicaCompactResponse(clientesPessoasJuridicas)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
+
+        if (autorizado) {
+            List<ClientePessoaJuridica> clientesPessoasJuridicas = clientePessoaJuridicaService.findAllOrderByNome()
+            respond clientePessoaJuridicaService.clientePessoaJuridicaCompactResponse(clientesPessoasJuridicas)
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }    
     }
 
     def save() {
-        JSONObject jsonObject = request.JSON
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!enderecoService.validateEnderecos(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+        if (autorizado) {
+            JSONObject jsonObject = request.JSON
 
-        if (!cidadeService.validateCidadeForCliente(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
-
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        ClientePessoaJuridica clientePessoaJuridica = jsonSlurper.parseText(jsonObject.toString())
-
-        def responseBody = clientePessoaJuridicaService.validate(clientePessoaJuridica, messageSource, request, response)
-
-        if (responseBody.isEmpty()) {
-            clientePessoaJuridica.enderecos.each { endereco ->
-                clientePessoaJuridica.addToEnderecos(endereco)
+            if (!enderecoService.validateEnderecos(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
             }
 
-            clientePessoaJuridica.save(flush: true)
-            respond clientePessoaJuridicaService.clientePessoaJuridicaComEnderecoResponse(clientePessoaJuridica), status: HttpStatus.CREATED
+            if (!cidadeService.validateCidadeForCliente(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
+
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            ClientePessoaJuridica clientePessoaJuridica = jsonSlurper.parseText(jsonObject.toString())
+
+            def responseBody = clientePessoaJuridicaService.validate(clientePessoaJuridica, messageSource, request, response)
+
+            if (responseBody.isEmpty()) {
+                clientePessoaJuridica.enderecos.each { endereco ->
+                    clientePessoaJuridica.addToEnderecos(endereco)
+                }
+
+                clientePessoaJuridica.save(flush: true)
+                respond clientePessoaJuridicaService.clientePessoaJuridicaComEnderecoResponse(clientePessoaJuridica), status: HttpStatus.CREATED
+            } else {
+                render responseBody as JSON
+            }
         } else {
-            render responseBody as JSON
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }   
     }
 
     def show() {
-        ClientePessoaJuridica clientePessoaJuridica = clientePessoaJuridicaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (clientePessoaJuridica) {
-            respond clientePessoaJuridicaService.clientePessoaJuridicaComEnderecoResponse(clientePessoaJuridica)
+        if (autorizado) {
+            ClientePessoaJuridica clientePessoaJuridica = clientePessoaJuridicaService.findById(params.id as Long)
+
+            if (clientePessoaJuridica) {
+                respond clientePessoaJuridicaService.clientePessoaJuridicaComEnderecoResponse(clientePessoaJuridica)
+            } else {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.not.found', null, null))
+            }
         } else {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.not.found', null, null))
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }    
     }
 
     def update() {
-        ClientePessoaJuridica clientePessoaJuridica = ClientePessoaJuridica.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!clientePessoaJuridica) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            ClientePessoaJuridica clientePessoaJuridica = ClientePessoaJuridica.findById(params.id as Long)
 
-        JSONObject jsonObject = request.JSON
+            if (!clientePessoaJuridica) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.not.found', null, null))
+                return
+            }
 
-        if (!enderecoService.validateEnderecos(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            JSONObject jsonObject = request.JSON
 
-        if (!cidadeService.validateCidadeForCliente(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!enderecoService.validateEnderecos(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaJuridica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        clientePessoaJuridica.enderecos.each { endereco ->
-            endereco.delete()
-        }
+            if (!cidadeService.validateCidadeForCliente(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        clientePessoaJuridica.properties = jsonSlurper.parseText(request.JSON.toString())
+            clientePessoaJuridica.enderecos.each { endereco ->
+                endereco.delete()
+            }
 
-        def responseBody = clientePessoaJuridicaService.validate(clientePessoaJuridica, messageSource, request, response)
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            clientePessoaJuridica.properties = jsonSlurper.parseText(request.JSON.toString())
 
-        if (responseBody.isEmpty()) {
-            clientePessoaJuridica.save(flush: true)
+            def responseBody = clientePessoaJuridicaService.validate(clientePessoaJuridica, messageSource, request, response)
 
-            respond clientePessoaJuridicaService.clientePessoaJuridicaComEnderecoResponse(clientePessoaJuridica), status: HttpStatus.CREATED
+            if (responseBody.isEmpty()) {
+                clientePessoaJuridica.save(flush: true)
+
+                respond clientePessoaJuridicaService.clientePessoaJuridicaComEnderecoResponse(clientePessoaJuridica), status: HttpStatus.CREATED
+            } else {
+                render responseBody as JSON
+            }
         } else {
-            render responseBody as JSON
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }     
     }
 }

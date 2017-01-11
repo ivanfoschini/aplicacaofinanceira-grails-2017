@@ -11,79 +11,98 @@ class CorrentistaController {
 
     static allowedMethods = [associate: "POST", showByCliente: "GET", showByConta: "GET"]
 
+    AutorizacaoService autorizacaoService
     CorrentistaService correntistaService
     MessageSource messageSource
 
     def associate() {
-        JSONObject jsonObject = request.JSON
-        JSONArray jsonCorrentistasArray = jsonObject.get("correntistas")
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        def correntistas = []
-        def responseBody
-        Conta conta
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        jsonCorrentistasArray.each { jsonCorrentistaObject ->
-            Correntista correntista = new Correntista(jsonSlurper.parseText(jsonCorrentistaObject.toString()))
+        if (autorizado) {
+            JSONObject jsonObject = request.JSON
+            JSONArray jsonCorrentistasArray = jsonObject.get("correntistas")
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            def correntistas = []
+            def responseBody
+            Conta conta
 
-            responseBody = correntistaService.validate(correntista, messageSource, request, response)
+            jsonCorrentistasArray.each { jsonCorrentistaObject ->
+                Correntista correntista = new Correntista(jsonSlurper.parseText(jsonCorrentistaObject.toString()))
 
-            if (!responseBody.isEmpty()) {
-                render responseBody as JSON
+                responseBody = correntistaService.validate(correntista, messageSource, request, response)
+
+                if (!responseBody.isEmpty()) {
+                    render responseBody as JSON
+                    return
+                }
+
+                correntistas.add(correntista)
+            }
+
+            def validateTitularidadeResult = correntistaService.validateTitularidade(jsonCorrentistasArray)
+
+            if (validateTitularidadeResult != null) {
+                render message: messageSource.getMessage(validateTitularidadeResult, null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
                 return
             }
 
-            correntistas.add(correntista)
-        }
+            def validateContaResult = correntistaService.validateConta(jsonCorrentistasArray)
 
-        def validateTitularidadeResult = correntistaService.validateTitularidade(jsonCorrentistasArray)
+            if (validateContaResult instanceof String) {
+                render message: messageSource.getMessage(validateContaResult, null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            } else if (validateContaResult instanceof Conta) {
+                conta = validateContaResult
+            }
 
-        if (validateTitularidadeResult != null) {
-            render message: messageSource.getMessage(validateTitularidadeResult, null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            def validateClienteResult = correntistaService.validateCliente(jsonCorrentistasArray)
 
-        def validateContaResult = correntistaService.validateConta(jsonCorrentistasArray)
+            if (validateClienteResult != null) {
+                render message: messageSource.getMessage(validateClienteResult, null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        if (validateContaResult instanceof String) {
-            render message: messageSource.getMessage(validateContaResult, null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        } else if (validateContaResult instanceof Conta) {
-            conta = validateContaResult
-        }
+            Correntista.executeUpdate("delete Correntista cor where cor.conta.id = " + conta.id)
 
-        def validateClienteResult = correntistaService.validateCliente(jsonCorrentistasArray)
+            correntistas.each { correntista ->
+                correntista.save(flush: true)
+            }
 
-        if (validateClienteResult != null) {
-            render message: messageSource.getMessage(validateClienteResult, null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
-
-        Correntista.executeUpdate("delete Correntista cor where cor.conta.id = " + conta.id)
-
-        correntistas.each { correntista ->
-            correntista.save(flush: true)
-        }
-
-        respond correntistaService.associateResponse(jsonObject), status: HttpStatus.OK
+            respond correntistaService.associateResponse(jsonObject), status: HttpStatus.OK
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def showByCliente() {
-        Cliente cliente = Cliente.get(params.id)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!cliente) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cliente.not.found', null, null))
+        if (autorizado) {
+            Cliente cliente = Cliente.get(params.id)
+
+            if (!cliente) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Cliente.not.found', null, null))
+            } else {
+                respond correntistaService.showByClienteResponse(cliente), status: HttpStatus.OK
+            }
         } else {
-            respond correntistaService.showByClienteResponse(cliente), status: HttpStatus.OK
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def showByConta() {
-        Conta conta = Conta.get(params.id)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!conta) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Conta.not.found', null, null))
+        if (autorizado) {
+            Conta conta = Conta.get(params.id)
+
+            if (!conta) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Conta.not.found', null, null))
+            } else {
+                respond correntistaService.showByContaResponse(conta), status: HttpStatus.OK
+            }
         } else {
-            respond correntistaService.showByContaResponse(conta), status: HttpStatus.OK
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 }

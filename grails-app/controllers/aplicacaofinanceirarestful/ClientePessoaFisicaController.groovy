@@ -10,107 +10,138 @@ class ClientePessoaFisicaController {
 
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
+    AutorizacaoService autorizacaoService
     CidadeService cidadeService
     ClientePessoaFisicaService clientePessoaFisicaService
     EnderecoService enderecoService
     MessageSource messageSource
 
     def delete() {
-        ClientePessoaFisica clientePessoaFisica = clientePessoaFisicaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!clientePessoaFisica) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            ClientePessoaFisica clientePessoaFisica = clientePessoaFisicaService.findById(params.id as Long)
 
-        clientePessoaFisica.enderecos.each { endereco ->
-            endereco.delete()
-        }
+            if (!clientePessoaFisica) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
+                return
+            }
 
-        clientePessoaFisica.delete(flush: true)
-        render status: HttpStatus.NO_CONTENT
+            clientePessoaFisica.enderecos.each { endereco ->
+                endereco.delete()
+            }
+
+            clientePessoaFisica.delete(flush: true)
+            render status: HttpStatus.NO_CONTENT
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def index() {
-        List<ClientePessoaFisica> clientesPessoasFisicas = clientePessoaFisicaService.findAllOrderByNome()
-        respond clientePessoaFisicaService.clientePessoaFisicaCompactResponse(clientesPessoasFisicas)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
+
+        if (autorizado) {
+            List<ClientePessoaFisica> clientesPessoasFisicas = clientePessoaFisicaService.findAllOrderByNome()
+            respond clientePessoaFisicaService.clientePessoaFisicaCompactResponse(clientesPessoasFisicas)
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def save() {
-        JSONObject jsonObject = request.JSON
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!enderecoService.validateEnderecos(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+        if (autorizado) {
+            JSONObject jsonObject = request.JSON
 
-        if (!cidadeService.validateCidadeForCliente(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
-
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        ClientePessoaFisica clientePessoaFisica = jsonSlurper.parseText(jsonObject.toString())
-
-        def responseBody = clientePessoaFisicaService.validate(clientePessoaFisica, messageSource, request, response)
-
-        if (responseBody.isEmpty()) {
-            clientePessoaFisica.enderecos.each { endereco ->
-                clientePessoaFisica.addToEnderecos(endereco)
+            if (!enderecoService.validateEnderecos(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
             }
 
-            clientePessoaFisica.save(flush: true)
-            respond clientePessoaFisicaService.clientePessoaFisicaComEnderecoResponse(clientePessoaFisica), status: HttpStatus.CREATED
+            if (!cidadeService.validateCidadeForCliente(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
+
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            ClientePessoaFisica clientePessoaFisica = jsonSlurper.parseText(jsonObject.toString())
+
+            def responseBody = clientePessoaFisicaService.validate(clientePessoaFisica, messageSource, request, response)
+
+            if (responseBody.isEmpty()) {
+                clientePessoaFisica.enderecos.each { endereco ->
+                    clientePessoaFisica.addToEnderecos(endereco)
+                }
+
+                clientePessoaFisica.save(flush: true)
+                respond clientePessoaFisicaService.clientePessoaFisicaComEnderecoResponse(clientePessoaFisica), status: HttpStatus.CREATED
+            } else {
+                render responseBody as JSON
+            }
         } else {
-            render responseBody as JSON
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def show() {
-        ClientePessoaFisica clientePessoaFisica = clientePessoaFisicaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (clientePessoaFisica) {
-            respond clientePessoaFisicaService.clientePessoaFisicaComEnderecoResponse(clientePessoaFisica)
+        if (autorizado) {
+            ClientePessoaFisica clientePessoaFisica = clientePessoaFisicaService.findById(params.id as Long)
+
+            if (clientePessoaFisica) {
+                respond clientePessoaFisicaService.clientePessoaFisicaComEnderecoResponse(clientePessoaFisica)
+            } else {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
+            }
         } else {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def update() {
-        ClientePessoaFisica clientePessoaFisica = ClientePessoaFisica.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!clientePessoaFisica) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            ClientePessoaFisica clientePessoaFisica = ClientePessoaFisica.findById(params.id as Long)
 
-        JSONObject jsonObject = request.JSON
+            if (!clientePessoaFisica) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.not.found', null, null))
+                return
+            }
 
-        if (!enderecoService.validateEnderecos(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            JSONObject jsonObject = request.JSON
 
-        if (!cidadeService.validateCidadeForCliente(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!enderecoService.validateEnderecos(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ClientePessoaFisica.enderecos.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        clientePessoaFisica.enderecos.each { endereco ->
-            endereco.delete()
-        }
+            if (!cidadeService.validateCidadeForCliente(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        clientePessoaFisica.properties = jsonSlurper.parseText(request.JSON.toString())
+            clientePessoaFisica.enderecos.each { endereco ->
+                endereco.delete()
+            }
 
-        def responseBody = clientePessoaFisicaService.validate(clientePessoaFisica, messageSource, request, response)
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            clientePessoaFisica.properties = jsonSlurper.parseText(request.JSON.toString())
 
-        if (responseBody.isEmpty()) {
-            clientePessoaFisica.save(flush: true)
+            def responseBody = clientePessoaFisicaService.validate(clientePessoaFisica, messageSource, request, response)
 
-            respond clientePessoaFisicaService.clientePessoaFisicaComEnderecoResponse(clientePessoaFisica), status: HttpStatus.CREATED
+            if (responseBody.isEmpty()) {
+                clientePessoaFisica.save(flush: true)
+
+                respond clientePessoaFisicaService.clientePessoaFisicaComEnderecoResponse(clientePessoaFisica), status: HttpStatus.CREATED
+            } else {
+                render responseBody as JSON
+            }
         } else {
-            render responseBody as JSON
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 }

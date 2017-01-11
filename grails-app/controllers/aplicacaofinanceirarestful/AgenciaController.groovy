@@ -11,103 +11,134 @@ class AgenciaController {
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
     AgenciaService agenciaService
+    AutorizacaoService autorizacaoService
     BancoService bancoService
     CidadeService cidadeService
     MessageSource messageSource
 
     def delete() {
-        Agencia agencia = agenciaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!agencia) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            Agencia agencia = agenciaService.findById(params.id as Long)
 
-        if (!agenciaService.verifyDeletion(agencia)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Agencia.has.contas', null, null), status: HttpStatus.CONFLICT
-            return
-        }
+            if (!agencia) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
+                return
+            }
 
-        agencia.endereco.delete()
-        agencia.delete(flush: true)
-        render status: HttpStatus.NO_CONTENT
+            if (!agenciaService.verifyDeletion(agencia)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Agencia.has.contas', null, null), status: HttpStatus.CONFLICT
+                return
+            }
+
+            agencia.endereco.delete()
+            agencia.delete(flush: true)
+            render status: HttpStatus.NO_CONTENT
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }      
     }
 
     def index() {
-        respond agenciaService.findAllOrderByNome()
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
+
+        if (autorizado) {
+            respond agenciaService.findAllOrderByNome()
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }    
     }
 
     def save() {
-        JSONObject jsonObject = request.JSON
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!bancoService.validateBanco(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+        if (autorizado) {
+            JSONObject jsonObject = request.JSON
 
-        if (!cidadeService.validateCidadeForAgencia(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!bancoService.validateBanco(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        Agencia agencia = new Agencia()
-        agencia.endereco = new Endereco()
-        agencia = jsonSlurper.parseText(jsonObject.toString())
+            if (!cidadeService.validateCidadeForAgencia(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        def responseBody = agenciaService.validate(agencia, messageSource, request, response)
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            Agencia agencia = new Agencia()
+            agencia.endereco = new Endereco()
+            agencia = jsonSlurper.parseText(jsonObject.toString())
 
-        if (responseBody.isEmpty()) {
-            agencia.endereco.save()
-            agencia.save(flush: true)
+            def responseBody = agenciaService.validate(agencia, messageSource, request, response)
 
-            respond agencia, [status: HttpStatus.CREATED, view:'show']
+            if (responseBody.isEmpty()) {
+                agencia.endereco.save()
+                agencia.save(flush: true)
+
+                respond agencia, [status: HttpStatus.CREATED, view:'show']
+            } else {
+                render responseBody as JSON
+            }
         } else {
-            render responseBody as JSON
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def show() {
-        Agencia agencia = agenciaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (agencia) {
-            respond agencia
+        if (autorizado) {
+            Agencia agencia = agenciaService.findById(params.id as Long)
+
+            if (agencia) {
+                respond agencia
+            } else {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
+            }
         } else {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def update() {
-        Agencia agencia = agenciaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!agencia) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            Agencia agencia = agenciaService.findById(params.id as Long)
 
-        JSONObject jsonObject = request.JSON
+            if (!agencia) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null))
+                return
+            }
 
-        if (!bancoService.validateBanco(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            JSONObject jsonObject = request.JSON
 
-        if (!cidadeService.validateCidadeForAgencia(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!bancoService.validateBanco(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Banco.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        agencia.properties = jsonSlurper.parseText(request.JSON.toString())
+            if (!cidadeService.validateCidadeForAgencia(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        def responseBody = agenciaService.validate(agencia, messageSource, request, response)
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            agencia.properties = jsonSlurper.parseText(request.JSON.toString())
 
-        if (responseBody.isEmpty()) {
-            agencia.save(flush: true)
+            def responseBody = agenciaService.validate(agencia, messageSource, request, response)
 
-            respond agencia, [status: HttpStatus.OK, view:'show']
+            if (responseBody.isEmpty()) {
+                agencia.save(flush: true)
+
+                respond agencia, [status: HttpStatus.OK, view:'show']
+            } else {
+                render responseBody as JSON
+            }
         } else {
-            render responseBody as JSON
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }        
     }
 }

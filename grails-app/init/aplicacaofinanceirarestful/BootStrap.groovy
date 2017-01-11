@@ -17,7 +17,7 @@ class BootStrap {
             usuarioFuncionario.addToPapeis(papelFuncionario).save()
 
             Servico bancoDelete = new Servico(uri: "/banco/delete").save()
-            Servico bancoList = new Servico(uri: "/banco/list").save()
+            Servico bancoList = new Servico(uri: "/banco/index").save()
             Servico bancoSave = new Servico(uri: "/banco/save").save()
             Servico bancoShow = new Servico(uri: "/banco/show").save()
             Servico bancoUpdate = new Servico(uri: "/banco/update").save()
@@ -35,7 +35,7 @@ class BootStrap {
             papelAdmin.addToServicos(bancoUpdate).save()
 
             Servico estadoDelete = new Servico(uri: "/estado/delete").save()
-            Servico estadoList = new Servico(uri: "/estado/list").save()
+            Servico estadoList = new Servico(uri: "/estado/index").save()
             Servico estadoSave = new Servico(uri: "/estado/save").save()
             Servico estadoShow = new Servico(uri: "/estado/show").save()
             Servico estadoUpdate = new Servico(uri: "/estado/update").save()
@@ -53,7 +53,7 @@ class BootStrap {
             papelAdmin.addToServicos(estadoUpdate)
 
             Servico agenciaDelete = new Servico(uri: "/agencia/delete").save()
-            Servico agenciaList = new Servico(uri: "/agencia/list").save()
+            Servico agenciaList = new Servico(uri: "/agencia/index").save()
             Servico agenciaSave = new Servico(uri: "/agencia/save").save()
             Servico agenciaShow = new Servico(uri: "/agencia/show").save()
             Servico agenciaUpdate = new Servico(uri: "/agencia/update").save()
@@ -71,7 +71,7 @@ class BootStrap {
             papelAdmin.addToServicos(agenciaUpdate).save()
 
             Servico cidadeDelete = new Servico(uri: "/cidade/delete").save()
-            Servico cidadeList = new Servico(uri: "/cidade/list").save()
+            Servico cidadeList = new Servico(uri: "/cidade/index").save()
             Servico cidadeSave = new Servico(uri: "/cidade/save").save()
             Servico cidadeShow = new Servico(uri: "/cidade/show").save()
             Servico cidadeUpdate = new Servico(uri: "/cidade/update").save()
@@ -89,7 +89,7 @@ class BootStrap {
             papelAdmin.addToServicos(cidadeUpdate).save()
 
             Servico clientePessoaFisicaDelete = new Servico(uri: "/clientePessoaFisica/delete").save()
-            Servico clientePessoaFisicaList = new Servico(uri: "/clientePessoaFisica/list").save()
+            Servico clientePessoaFisicaList = new Servico(uri: "/clientePessoaFisica/index").save()
             Servico clientePessoaFisicaSave = new Servico(uri: "/clientePessoaFisica/save").save()
             Servico clientePessoaFisicaShow = new Servico(uri: "/clientePessoaFisica/show").save()
             Servico clientePessoaFisicaUpdate = new Servico(uri: "/clientePessoaFisica/update").save()
@@ -107,7 +107,7 @@ class BootStrap {
             papelAdmin.addToServicos(clientePessoaFisicaUpdate).save()
 
             Servico clientePessoaJuridicaDelete = new Servico(uri: "/clientePessoaJuridica/delete").save()
-            Servico clientePessoaJuridicaList = new Servico(uri: "/clientePessoaJuridica/list").save()
+            Servico clientePessoaJuridicaList = new Servico(uri: "/clientePessoaJuridica/index").save()
             Servico clientePessoaJuridicaSave = new Servico(uri: "/clientePessoaJuridica/save").save()
             Servico clientePessoaJuridicaShow = new Servico(uri: "/clientePessoaJuridica/show").save()
             Servico clientePessoaJuridicaUpdate = new Servico(uri: "/clientePessoaJuridica/update").save()
@@ -125,7 +125,7 @@ class BootStrap {
             papelAdmin.addToServicos(clientePessoaJuridicaUpdate).save()
 
             Servico contaCorrenteDelete = new Servico(uri: "/contaCorrente/delete").save()
-            Servico contaCorrenteList = new Servico(uri: "/contaCorrente/list").save()
+            Servico contaCorrenteList = new Servico(uri: "/contaCorrente/index").save()
             Servico contaCorrenteSave = new Servico(uri: "/contaCorrente/save").save()
             Servico contaCorrenteShow = new Servico(uri: "/contaCorrente/show").save()
             Servico contaCorrenteUpdate = new Servico(uri: "/contaCorrente/update").save()
@@ -143,7 +143,7 @@ class BootStrap {
             papelAdmin.addToServicos(contaCorrenteUpdate).save()            
 
             Servico contaPoupancaDelete = new Servico(uri: "/contaPoupanca/delete").save()
-            Servico contaPoupancaList = new Servico(uri: "/contaPoupanca/list").save()
+            Servico contaPoupancaList = new Servico(uri: "/contaPoupanca/index").save()
             Servico contaPoupancaSave = new Servico(uri: "/contaPoupanca/save").save()
             Servico contaPoupancaShow = new Servico(uri: "/contaPoupanca/show").save()
             Servico contaPoupancaUpdate = new Servico(uri: "/contaPoupanca/update").save()
@@ -171,6 +171,11 @@ class BootStrap {
 
             papelAdmin.addToServicos(correntistaShowByConta).save()
             papelFuncionario.addToServicos(correntistaShowByConta).save()
+
+            Servico logout = new Servico(uri: "/logout/logout").save()
+
+            papelAdmin.addToServicos(logout).save()
+            papelFuncionario.addToServicos(logout).save()
         }
     }
 

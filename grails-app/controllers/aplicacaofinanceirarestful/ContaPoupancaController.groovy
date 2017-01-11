@@ -10,89 +10,120 @@ class ContaPoupancaController {
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
     AgenciaService agenciaService
+    AutorizacaoService autorizacaoService
     ContaPoupancaService contaPoupancaService
     MessageSource messageSource
 
     def delete() {
-        ContaPoupanca contaPoupanca = contaPoupancaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!contaPoupanca) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            ContaPoupanca contaPoupanca = contaPoupancaService.findById(params.id as Long)
 
-        contaPoupanca.delete(flush: true)
-        render status: HttpStatus.NO_CONTENT
+            if (!contaPoupanca) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.not.found', null, null))
+                return
+            }
+
+            contaPoupanca.delete(flush: true)
+            render status: HttpStatus.NO_CONTENT
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def index() {
-        respond contaPoupancaService.findAllOrderByNumero()
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
+
+        if (autorizado) {
+            respond contaPoupancaService.findAllOrderByNumero()
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def save() {
-        JSONObject jsonObject = request.JSON
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAbertura')) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAbertura.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+        if (autorizado) {
+            JSONObject jsonObject = request.JSON
 
-        if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAniversario')) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAniversario.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAbertura')) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAbertura.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        if (!agenciaService.validateAgencia(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAniversario')) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAniversario.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        ContaPoupanca contaPoupanca = jsonSlurper.parseText(jsonObject.toString())
+            if (!agenciaService.validateAgencia(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        contaPoupanca.save(flush: true)
-        respond contaPoupanca, [status: HttpStatus.CREATED, view: 'show']
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            ContaPoupanca contaPoupanca = jsonSlurper.parseText(jsonObject.toString())
+
+            contaPoupanca.save(flush: true)
+            respond contaPoupanca, [status: HttpStatus.CREATED, view: 'show']
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def show() {
-        ContaPoupanca contaPoupanca = contaPoupancaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (contaPoupanca) {
-            respond contaPoupanca
+        if (autorizado) {
+            ContaPoupanca contaPoupanca = contaPoupancaService.findById(params.id as Long)
+
+            if (contaPoupanca) {
+                respond contaPoupanca
+            } else {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.not.found', null, null))
+            }
         } else {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.not.found', null, null))
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def update() {
-        ContaPoupanca contaPoupanca = contaPoupancaService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!contaPoupanca) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            ContaPoupanca contaPoupanca = contaPoupancaService.findById(params.id as Long)
 
-        JSONObject jsonObject = request.JSON
+            if (!contaPoupanca) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.not.found', null, null))
+                return
+            }
 
-        if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAbertura')) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAbertura.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            JSONObject jsonObject = request.JSON
 
-        if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAniversario')) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAniversario.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAbertura')) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAbertura.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        if (!agenciaService.validateAgencia(jsonObject)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
-            return
-        }
+            if (!DateUtil.instance.validateDateFromJSON(jsonObject, 'dataDeAniversario')) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.ContaPoupanca.dataDeAniversario.nullable', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        contaPoupanca.properties = jsonSlurper.parseText(request.JSON.toString())
+            if (!agenciaService.validateAgencia(jsonObject)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Agencia.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
+                return
+            }
 
-        contaPoupanca.save(flush: true)
-        respond contaPoupanca, [status: HttpStatus.OK, view: 'show']
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            contaPoupanca.properties = jsonSlurper.parseText(request.JSON.toString())
+
+            contaPoupanca.save(flush: true)
+            respond contaPoupanca, [status: HttpStatus.OK, view: 'show']
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 }

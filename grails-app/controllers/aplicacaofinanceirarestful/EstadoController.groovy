@@ -8,60 +8,91 @@ class EstadoController {
 
     static allowedMethods = [delete: "DELETE", index: "GET", save: "POST", show: "GET", update: "PUT"]
 
+    AutorizacaoService autorizacaoService
     EstadoService estadoService
     MessageSource messageSource
 
     def delete() {
-        Estado estado = estadoService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!estado) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            Estado estado = estadoService.findById(params.id as Long)
 
-        if (!estadoService.verifyDeletion(estado)) {
-            render message: messageSource.getMessage('aplicacaofinanceirarestful.Estado.has.cidades', null, null), status: HttpStatus.CONFLICT
-            return
-        }
+            if (!estado) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
+                return
+            }
 
-        estado.delete(flush: true)
-        render status: HttpStatus.NO_CONTENT
+            if (!estadoService.verifyDeletion(estado)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Estado.has.cidades', null, null), status: HttpStatus.CONFLICT
+                return
+            }
+
+            estado.delete(flush: true)
+            render status: HttpStatus.NO_CONTENT
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def index() {
-        respond estadoService.findAllOrderByNome()
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
+
+        if (autorizado) {
+            respond estadoService.findAllOrderByNome()
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        }    
     }
 
     def save() {
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        Estado estado = new Estado(jsonSlurper.parseText(request.JSON.toString()))
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        estado.save(flush: true)
-        respond estado, [status: HttpStatus.CREATED, view: 'show']
+        if (autorizado) {
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            Estado estado = new Estado(jsonSlurper.parseText(request.JSON.toString()))
+
+            estado.save(flush: true)
+            respond estado, [status: HttpStatus.CREATED, view: 'show']
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def show() {
-        Estado estado = estadoService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (estado) {
-            respond estado
+        if (autorizado) {
+            Estado estado = estadoService.findById(params.id as Long)
+
+            if (estado) {
+                respond estado
+            } else {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
+            }
         } else {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
-        }
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 
     def update() {
-        Estado estado = estadoService.findById(params.id as Long)
+        def autorizado = autorizacaoService.autorizar(request, actionUri)
 
-        if (!estado) {
-            render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
-            return
-        }
+        if (autorizado) {
+            Estado estado = estadoService.findById(params.id as Long)
 
-        JsonSlurper jsonSlurper = new JsonSlurper()
-        estado.properties = jsonSlurper.parseText(request.JSON.toString())
+            if (!estado) {
+                render NotFoundResponseUtil.instance.createNotFoundResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Estado.not.found', null, null))
+                return
+            }
 
-        estado.save(flush: true)
-        respond estado, [status: HttpStatus.OK, view: 'show']
+            JsonSlurper jsonSlurper = new JsonSlurper()
+            estado.properties = jsonSlurper.parseText(request.JSON.toString())
+
+            estado.save(flush: true)
+            respond estado, [status: HttpStatus.OK, view: 'show']
+        } else {
+            render autorizacaoService.createNotAuthorizedResponse(request, response, messageSource.getMessage('aplicacaofinanceirarestful.Usuario.not.authorized', null, null))
+        } 
     }
 }
