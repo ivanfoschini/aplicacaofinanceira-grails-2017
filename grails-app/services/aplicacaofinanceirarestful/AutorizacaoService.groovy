@@ -5,11 +5,11 @@ import grails.transaction.Transactional
 @Transactional
 class AutorizacaoService {
 
-    def autorizar(request, actionUri) {
+    def autorizar(request) {
     	def autorizado = false
-
+        
     	Usuario usuario = Usuario.findByNomeDeUsuarioAndToken(request.getHeader("nomeDeUsuario"), request.getHeader("token"))       
-    	Servico servico = Servico.findByUri(actionUri)
+    	Servico servico = Servico.findByRequestUriAndRequestMethod(request.requestURI, request.method)
 
         if (usuario && servico) {
         	usuario.papeis.each { Papel papelDoUsuario ->

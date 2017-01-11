@@ -22,7 +22,7 @@ class AutorizacaoInterceptor {
         //Revisar texto da aula para ver se nao falta nada
 
 
-        boolean autorizado = autorizacaoService.autorizar(request, params)
+        boolean autorizado = autorizacaoService.autorizar(request)
 
         if (autorizado) {
             return true
