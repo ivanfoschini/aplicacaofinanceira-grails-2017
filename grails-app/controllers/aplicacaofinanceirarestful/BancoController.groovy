@@ -133,9 +133,12 @@ class BancoController {
      * @apiErrorExample Unauthorized
      *     HTTP/1.1 401 Unauthorized
      *     {
-     *       "message": "Usuário não autorizado a acessar o recurso solicitado."
+     *       "timestamp": 1484232706578,
+     *       "status": 401,
+     *       "error": "Unauthorized",
+     *       "message": "Usuário não autorizado a acessar o recurso solicitado.",
+     *       "path": "/banco"
      *     }
-     *
      */
     def index() {
         def autorizado = autorizacaoService.autorizar(request, actionUri)
@@ -422,6 +425,18 @@ class BancoController {
      *       "error": "Unauthorized",
      *       "message": "Usuário não autorizado a acessar o recurso solicitado.",
      *       "path": "/banco/1"
+     *     }
+     *
+     * @apiError NotFound Não existe um banco que possua o identificador passado como parâmetro.
+     *
+     * @apiErrorExample NotFound
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "timestamp": 1484233284661,
+     *       "status": 404,
+     *       "error": "Not Found",
+     *       "message": "Banco não encontrado.",
+     *       "path": "/banco/0"
      *     }
      *
      * @apiError UnprocessableEntity Erros de validação de dados ou violação de regras de negócio.
