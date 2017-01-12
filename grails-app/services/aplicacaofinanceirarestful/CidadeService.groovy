@@ -25,4 +25,12 @@ class CidadeService {
 
         return true
     }
+
+    def verifyDeletion(Cidade cidade) {
+        if (!cidade.enderecos?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }
