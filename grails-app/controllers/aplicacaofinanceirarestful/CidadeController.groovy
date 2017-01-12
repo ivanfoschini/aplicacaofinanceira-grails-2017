@@ -24,6 +24,11 @@ class CidadeController {
                 return
             }
 
+            if (!cidadeService.verifyDeletion(cidade)) {
+                render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.has.enderecos', null, null), status: HttpStatus.CONFLICT
+                return
+            }
+
             cidade.delete(flush: true)
             render status: HttpStatus.NO_CONTENT
         } else {
