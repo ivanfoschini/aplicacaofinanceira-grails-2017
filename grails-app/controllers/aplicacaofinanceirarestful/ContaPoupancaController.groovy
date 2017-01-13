@@ -21,6 +21,11 @@ class ContaPoupancaController {
             return
         }
 
+        if (!contaPoupancaService.verifyDeletion(contaPoupanca)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Conta.has.correntistas', null, null), status: HttpStatus.CONFLICT
+            return
+        }
+
         contaPoupanca.delete(flush: true)
         render status: HttpStatus.NO_CONTENT
     }

@@ -21,6 +21,11 @@ class ContaCorrenteController {
             return
         }
 
+        if (!contaCorrenteService.verifyDeletion(contaCorrente)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Conta.has.correntistas', null, null), status: HttpStatus.CONFLICT
+            return
+        }
+
         contaCorrente.delete(flush: true)
         render status: HttpStatus.NO_CONTENT
     }

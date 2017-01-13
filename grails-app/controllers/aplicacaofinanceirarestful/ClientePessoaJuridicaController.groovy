@@ -23,6 +23,11 @@ class ClientePessoaJuridicaController {
             return
         }
 
+        if (!clientePessoaJuridicaService.verifyDeletion(clientePessoaJuridica)) {
+            render message: messageSource.getMessage('aplicacaofinanceirarestful.Cliente.has.correntistas', null, null), status: HttpStatus.CONFLICT
+            return
+        }
+
         clientePessoaJuridica.enderecos.each { endereco ->
             endereco.delete()
         }
