@@ -40,7 +40,7 @@ class AgenciaController {
             return
         }
 
-        if (!cidadeService.validateCidade(jsonObject)) {
+        if (!cidadeService.validateCidadeForAgencia(jsonObject)) {
             render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
             return
         }
@@ -87,7 +87,7 @@ class AgenciaController {
             return
         }
 
-        if (!cidadeService.validateCidade(jsonObject)) {
+        if (!cidadeService.validateCidadeForAgencia(jsonObject)) {
             render message: messageSource.getMessage('aplicacaofinanceirarestful.Cidade.not.found', null, null), status: HttpStatus.UNPROCESSABLE_ENTITY
             return
         }

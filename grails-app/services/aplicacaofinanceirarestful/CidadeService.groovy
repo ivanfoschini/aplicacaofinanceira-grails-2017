@@ -14,7 +14,7 @@ class CidadeService {
         return Cidade.get(id)
     }
 
-    def validateCidade(jsonObject) {
+    def validateCidadeForAgencia(jsonObject) {
         JSONObject jsonCidadeObject = jsonObject.get("endereco").get("cidade")
 
         Cidade cidade = Cidade.get(jsonCidadeObject.get("id"))
