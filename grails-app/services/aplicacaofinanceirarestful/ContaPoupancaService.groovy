@@ -12,4 +12,12 @@ class ContaPoupancaService {
     def findById(Long id) {
         return ContaPoupanca.get(id)
     }
+
+    def verifyDeletion(ContaPoupanca contaPoupanca) {
+        if (!contaPoupanca.correntistas?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }
