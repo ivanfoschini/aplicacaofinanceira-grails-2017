@@ -111,4 +111,12 @@ class ClientePessoaJuridicaService {
 
         return responseBody
     }
+
+    def verifyDeletion(ClientePessoaJuridica clientePessoaJuridica) {
+        if (!clientePessoaJuridica.correntistas?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }

@@ -12,4 +12,12 @@ class ContaCorrenteService {
     def findById(Long id) {
         return ContaCorrente.get(id)
     }
+
+    def verifyDeletion(ContaCorrente contaCorrente) {
+        if (!contaCorrente.correntistas?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }

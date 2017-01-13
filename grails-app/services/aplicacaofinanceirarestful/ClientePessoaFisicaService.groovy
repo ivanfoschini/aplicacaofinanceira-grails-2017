@@ -113,4 +113,12 @@ class ClientePessoaFisicaService {
 
         return responseBody
     }
+
+    def verifyDeletion(ClientePessoaFisica clientePessoaFisica) {
+        if (!clientePessoaFisica.correntistas?.isEmpty()) {
+            return false
+        }
+
+        return true
+    }
 }
